@@ -1,0 +1,13 @@
+[package]
+name = "paperless-cli"
+version = "0.1.0"
+edition = "2021"
+authors = ["Stanislav Petrashov <s@petrashov.com>"]
+repository = "https://github.com/wormi4ok/paperless-cli"
+readme = "README.md"
+description = "A command-line tool to interact with Paperless-ngx via REST API"
+license = "MIT"
+
+[dependencies]
+clap = { version = "4.5.27", features = ["derive"] }
+reqwest = { version = "0.12", features = ["blocking", "multipart", "stream"] }
