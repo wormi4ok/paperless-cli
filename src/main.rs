@@ -1,5 +1,6 @@
 use std::env;
 use std::path::PathBuf;
+use std::process;
 
 use clap::Parser;
 
@@ -19,15 +20,15 @@ struct PaperlessConfig {
 fn main() {
     let args = Cli::parse();
     if !&args.filepath.exists() {
-        println!("File {} not found", &args.filepath.display());
-        std::process::exit(1);
+        eprintln!("File {} not found", &args.filepath.display());
+        process::exit(1);
     }
 
     let api_token = match env::var("PAPERLESS_API_TOKEN") {
         Ok(token) => token,
         Err(e) => {
             eprintln!("Couldn't find PAPERLESS_API_TOKEN: {}", e);
-            return;
+            process::exit(2)
         }
     };
 
@@ -43,7 +44,8 @@ fn main() {
 
     let result = upload_file(config, args.filepath);
     if let Err(e) = result {
-        println!("Error: {}", e);
+        eprintln!("Error: {}", e);
+        std::process::exit(3);
     }
 }
 
@@ -59,14 +61,28 @@ fn upload_file(paperless: PaperlessConfig, file: PathBuf) -> std::io::Result<()>
         .multipart(form)
         .header("Content-Length", metadata.len().to_string())
         .header("Authorization", format!("Token {}", paperless.api_token))
-        .send()
-        .expect("request failed");
+        .send();
 
-    if res.status().is_success() {
-        println!("File uploaded successfully")
-    } else {
-        println!("Error uploading: {}", res.status());
-        println!("Message is: {}", res.text().unwrap());
+    match res {
+        Ok(response) => {
+            if response.status().is_success() {
+                println!("File uploaded successfully");
+            } else {
+                eprintln!("Error uploading: {}", response.status());
+                eprintln!(
+                    "Message is: {}",
+                    response
+                        .text()
+                        .unwrap_or_else(|_| "Failed to read response text".to_string())
+                );
+                process::exit(4);
+            }
+        }
+        Err(e) => {
+            eprintln!("Request failed: {}", e);
+            process::exit(5);
+        }
     }
+
     Ok(())
 }
