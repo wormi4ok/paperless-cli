@@ -1,6 +1,6 @@
 [package]
 name = "paperless-cli"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Stanislav Petrashov <s@petrashov.com>"]
 repository = "https://github.com/wormi4ok/paperless-cli"
@@ -11,3 +11,6 @@ license = "MIT"
 [dependencies]
 clap = { version = "4.5.31", features = ["derive"] }
 reqwest = { version = "0.12", features = ["blocking", "multipart", "stream"] }
+
+[dev-dependencies]
+mockito = "1.7.0"

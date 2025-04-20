@@ -4,3 +4,6 @@ build:
 lint:
 	cargo fmt
 	cargo clippy
+
+test:
+	cargo test
